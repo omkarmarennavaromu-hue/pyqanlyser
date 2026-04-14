@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "app.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "app.py"
+    }
+  ],
+  "env": {
+    "FLASK_SECRET_KEY": "@flask_secret_key",
+    "OPENROUTER_API_KEY": "@openrouter_api_key"
+  }
+}
