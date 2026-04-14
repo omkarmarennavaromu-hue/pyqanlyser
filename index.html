@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PYQ AI Analyzer — Exam Intelligence Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #060810;
+    --surface: rgba(255,255,255,0.04);
+    --surface-hover: rgba(255,255,255,0.07);
+    --border: rgba(255,255,255,0.08);
+    --border-bright: rgba(255,255,255,0.15);
+    --accent: #00E5FF;
+    --accent2: #7B5EA7;
+    --accent3: #FF6B6B;
+    --text: #F0F4FF;
+    --text-muted: rgba(240,244,255,0.45);
+    --glow: 0 0 40px rgba(0,229,255,0.15);
+    --font-head: 'Syne', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+    --radius: 16px;
+    --radius-sm: 10px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-mono);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ─── BACKGROUND MESH ─── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 10% 10%, rgba(0,229,255,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 50% at 90% 80%, rgba(123,94,167,0.08) 0%, transparent 55%),
+      radial-gradient(ellipse 50% 40% at 50% 50%, rgba(255,107,107,0.03) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ─── LAYOUT ─── */
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* ─── NAV ─── */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    padding: 20px 0;
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    background: rgba(6,8,16,0.7);
+  }
+
+  .nav-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  .nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-head);
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  .nav-dot {
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--accent);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  .nav-tag {
+    font-size: 0.72rem;
+    color: var(--accent);
+    font-family: var(--font-mono);
+    border: 1px solid rgba(0,229,255,0.3);
+    padding: 3px 10px;
+    border-radius: 100px;
+    letter-spacing: 0.05em;
+  }
+
+  /* ─── HERO ─── */
+  .hero {
+    padding: 110px 0 80px;
+    text-align: center;
+    position: relative;
+  }
+
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.78rem;
+    color: var(--accent);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 28px;
+    padding: 6px 16px;
+    background: rgba(0,229,255,0.07);
+    border: 1px solid rgba(0,229,255,0.2);
+    border-radius: 100px;
+  }
+
+  .hero-title {
+    font-family: var(--font-head);
+    font-size: clamp(2.8rem, 7vw, 5.5rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+
+  .hero-title span {
+    background: linear-gradient(135deg, var(--accent) 0%, #7B5EA7 50%, #FF6B6B 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-sub {
+    font-size: 1.05rem;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    font-family: var(--font-mono);
+    font-weight: 300;
+  }
+
+  .hero-byline {
+    font-size: 0.82rem;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 0.06em;
+    margin-bottom: 60px;
+  }
+
+  .hero-byline strong {
+    color: rgba(255,255,255,0.55);
+    font-weight: 500;
+  }
+
+  .hero-features {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 60px;
+  }
+
+  .feat-chip {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    padding: 6px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .feat-chip::before {
+    content: '✦';
+    color: var(--accent);
+    font-size: 0.6rem;
+  }
+
+  /* ─── UPLOAD CARD ─── */
+  .upload-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 48px 40px;
+    backdrop-filter: blur(20px);
+    box-shadow: var(--glow), inset 0 1px 0 rgba(255,255,255,0.06);
+    transition: border-color 0.3s;
+    margin-bottom: 60px;
+  }
+
+  .upload-card:hover {
+    border-color: var(--border-bright);
+  }
+
+  .drop-zone {
+    border: 2px dashed rgba(0,229,255,0.25);
+    border-radius: var(--radius);
+    padding: 52px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    background: rgba(0,229,255,0.02);
+    margin-bottom: 28px;
+  }
+
+  .drop-zone:hover, .drop-zone.drag-over {
+    border-color: var(--accent);
+    background: rgba(0,229,255,0.06);
+    box-shadow: 0 0 30px rgba(0,229,255,0.1);
+  }
+
+  .drop-icon {
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 18px;
+    background: linear-gradient(135deg, rgba(0,229,255,0.15), rgba(123,94,167,0.15));
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+  }
+
+  .drop-title {
+    font-family: var(--font-head);
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .drop-sub {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  .drop-sub span {
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  #fileInput {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+  }
+
+  #fileName {
+    font-size: 0.82rem;
+    color: var(--accent);
+    text-align: center;
+    margin-bottom: 20px;
+    min-height: 20px;
+    font-family: var(--font-mono);
+  }
+
+  .btn-analyze {
+    width: 100%;
+    padding: 16px 32px;
+    background: linear-gradient(135deg, var(--accent) 0%, #0099BB 100%);
+    color: #000;
+    font-family: var(--font-head);
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-analyze::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .btn-analyze:hover:not(:disabled)::before { opacity: 1; }
+  .btn-analyze:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 8px 30px rgba(0,229,255,0.3); }
+  .btn-analyze:active { transform: translateY(0); }
+  .btn-analyze:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* ─── LOADER ─── */
+  #loader {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding: 48px 24px;
+  }
+
+  #loader.visible { display: flex; }
+
+  .loader-ring {
+    width: 60px;
+    height: 60px;
+    border: 3px solid rgba(0,229,255,0.1);
+    border-top-color: var(--accent);
+    border-right-color: var(--accent2);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loader-text {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    text-align: center;
+  }
+
+  .loader-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    max-width: 320px;
+  }
+
+  .step {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.3);
+    transition: color 0.4s;
+  }
+
+  .step.active { color: var(--accent); }
+  .step.done { color: rgba(0,229,255,0.5); }
+
+  .step-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    flex-shrink: 0;
+  }
+
+  /* ─── ERROR ─── */
+  #errorBox {
+    display: none;
+    background: rgba(255,107,107,0.08);
+    border: 1px solid rgba(255,107,107,0.3);
+    border-radius: var(--radius-sm);
+    padding: 16px 20px;
+    font-size: 0.85rem;
+    color: #FF9A9A;
+    margin-top: 20px;
+  }
+
+  #errorBox.visible { display: block; }
+
+  /* ─── RESULTS ─── */
+  #results {
+    display: none;
+    animation: fadeUp 0.6s ease forwards;
+  }
+
+  #results.visible { display: block; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .section-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* Stats row */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 24px 20px;
+    backdrop-filter: blur(12px);
+    transition: all 0.3s;
+  }
+
+  .stat-card:hover {
+    border-color: var(--border-bright);
+    transform: translateY(-2px);
+  }
+
+  .stat-num {
+    font-family: var(--font-head);
+    font-size: 2.2rem;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .stat-num.cyan { color: var(--accent); }
+  .stat-num.purple { color: #A78BFA; }
+  .stat-num.coral { color: var(--accent3); }
+
+  .stat-label {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+  }
+
+  /* Chart section */
+  .chart-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 32px;
+    backdrop-filter: blur(12px);
+    margin-bottom: 40px;
+  }
+
+  .chart-title {
+    font-family: var(--font-head);
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .chart-title-dot {
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    box-shadow: 0 0 8px var(--accent);
+  }
+
+  .bar-chart {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .bar-row {
+    display: grid;
+    grid-template-columns: 180px 1fr 52px;
+    align-items: center;
+    gap: 14px;
+    animation: slideIn 0.5s ease forwards;
+    opacity: 0;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(-10px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .bar-label {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: right;
+    padding-right: 4px;
+  }
+
+  .bar-track {
+    height: 8px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 100px;
+    overflow: hidden;
+  }
+
+  .bar-fill {
+    height: 100%;
+    border-radius: 100px;
+    transition: width 1s cubic-bezier(0.16, 1, 0.3, 1);
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+  }
+
+  .bar-pct {
+    font-size: 0.75rem;
+    color: var(--accent);
+    font-family: var(--font-mono);
+    text-align: right;
+  }
+
+  /* Questions list */
+  .q-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 60px;
+  }
+
+  .q-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 20px 24px;
+    transition: all 0.25s;
+    cursor: pointer;
+  }
+
+  .q-card:hover {
+    border-color: var(--border-bright);
+    background: var(--surface-hover);
+  }
+
+  .q-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .q-num {
+    font-size: 0.72rem;
+    color: var(--accent);
+    background: rgba(0,229,255,0.08);
+    border: 1px solid rgba(0,229,255,0.2);
+    padding: 2px 8px;
+    border-radius: 100px;
+    flex-shrink: 0;
+    font-family: var(--font-mono);
+  }
+
+  .q-chapter {
+    font-size: 0.72rem;
+    color: #A78BFA;
+    background: rgba(123,94,167,0.1);
+    border: 1px solid rgba(123,94,167,0.25);
+    padding: 2px 10px;
+    border-radius: 100px;
+    font-family: var(--font-mono);
+  }
+
+  .q-text {
+    font-size: 0.88rem;
+    color: var(--text);
+    line-height: 1.6;
+    margin-bottom: 14px;
+  }
+
+  .q-options {
+    display: none;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .q-card.expanded .q-options { display: grid; }
+
+  .q-opt {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    padding: 8px 12px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    line-height: 1.4;
+  }
+
+  .q-opt.correct {
+    border-color: rgba(0,229,255,0.3);
+    color: var(--accent);
+    background: rgba(0,229,255,0.06);
+  }
+
+  .q-toggle {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 2px;
+  }
+
+  /* ─── FOOTER ─── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 32px 0;
+    text-align: center;
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.2);
+  }
+
+  footer strong { color: rgba(255,255,255,0.4); }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 640px) {
+    .upload-card { padding: 28px 20px; }
+    .drop-zone { padding: 36px 16px; }
+    .bar-row { grid-template-columns: 120px 1fr 44px; }
+    .q-options { grid-template-columns: 1fr; }
+    .stats-row { grid-template-columns: 1fr 1fr; }
+    .hero { padding: 70px 0 50px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a class="nav-brand" href="#">
+      <div class="nav-dot"></div>
+      PYQ AI
+    </a>
+    <span class="nav-tag">BETA</span>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="wrapper">
+    <div class="hero-eyebrow">✦ AI-Powered Exam Intelligence</div>
+    <h1 class="hero-title">PYQ <span>AI</span><br/>Analyzer</h1>
+    <p class="hero-sub">Transform exam papers into structured intelligence.</p>
+    <p class="hero-byline">Built by <strong>Founder Omkar R Marennavar</strong></p>
+
+    <div class="hero-features">
+      <span class="feat-chip">MCQ Extraction</span>
+      <span class="feat-chip">Chapter Tagging</span>
+      <span class="feat-chip">Weightage Analysis</span>
+      <span class="feat-chip">NCERT 11 / 12</span>
+      <span class="feat-chip">Question Database</span>
+    </div>
+  </div>
+</section>
+
+<!-- UPLOAD SECTION -->
+<main>
+  <div class="wrapper">
+
+    <div class="upload-card">
+      <!-- Drop zone -->
+      <div class="drop-zone" id="dropZone">
+        <input type="file" id="fileInput" accept=".pdf" />
+        <div class="drop-icon">📄</div>
+        <div class="drop-title">Drop your PYQ PDF here</div>
+        <p class="drop-sub">or <span>click to browse</span> &nbsp;·&nbsp; PDF only &nbsp;·&nbsp; Max 16MB</p>
+      </div>
+
+      <div id="fileName"></div>
+
+      <button class="btn-analyze" id="btnAnalyze" disabled onclick="analyze()">
+        ⚡ Analyze PDF
+      </button>
+
+      <!-- Error -->
+      <div id="errorBox"></div>
+    </div>
+
+    <!-- LOADER -->
+    <div id="loader">
+      <div class="loader-ring"></div>
+      <div class="loader-text">Processing your PDF with AI…</div>
+      <div class="loader-steps">
+        <div class="step active" id="step1"><div class="step-dot"></div> Extracting text from PDF</div>
+        <div class="step" id="step2"><div class="step-dot"></div> Identifying MCQ questions</div>
+        <div class="step" id="step3"><div class="step-dot"></div> Tagging NCERT chapters</div>
+        <div class="step" id="step4"><div class="step-dot"></div> Building analytics</div>
+      </div>
+    </div>
+
+    <!-- RESULTS -->
+    <div id="results">
+
+      <!-- Stats -->
+      <div class="section-label">Overview</div>
+      <div class="stats-row" id="statsRow"></div>
+
+      <!-- Chapter Weightage Chart -->
+      <div class="section-label">Chapter Weightage</div>
+      <div class="chart-card">
+        <div class="chart-title">
+          <div class="chart-title-dot"></div>
+          Chapter-wise Distribution
+        </div>
+        <div class="bar-chart" id="barChart"></div>
+      </div>
+
+      <!-- Questions -->
+      <div class="section-label">Extracted Questions</div>
+      <div class="q-grid" id="qGrid"></div>
+
+    </div>
+
+  </div>
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <p><strong>PYQ AI Analyzer</strong> &nbsp;·&nbsp; Built by Omkar R Marennavar &nbsp;·&nbsp; Powered by GPT-4.1</p>
+</footer>
+
+<script>
+  // ─── FILE HANDLING ───
+  const dropZone = document.getElementById('dropZone');
+  const fileInput = document.getElementById('fileInput');
+  const btnAnalyze = document.getElementById('btnAnalyze');
+  const fileNameEl = document.getElementById('fileName');
+
+  let selectedFile = null;
+
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files.length > 0) selectFile(fileInput.files[0]);
+  });
+
+  dropZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropZone.classList.add('drag-over');
+  });
+
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+
+  dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file && file.type === 'application/pdf') selectFile(file);
+    else showError('Please drop a valid PDF file.');
+  });
+
+  function selectFile(file) {
+    selectedFile = file;
+    fileNameEl.textContent = '📎 ' + file.name;
+    btnAnalyze.disabled = false;
+    hideError();
+  }
+
+  // ─── ANALYZE ───
+  async function analyze() {
+    if (!selectedFile) return;
+
+    hideError();
+    showLoader();
+
+    const form = new FormData();
+    form.append('pdf', selectedFile);
+
+    // Animate steps
+    animateSteps();
+
+    try {
+      const res = await fetch('/analyze', { method: 'POST', body: form });
+      const data = await res.json();
+
+      hideLoader();
+
+      if (!res.ok || data.error) {
+        showError(data.error || 'Something went wrong. Please try again.');
+        return;
+      }
+
+      renderResults(data);
+
+    } catch (err) {
+      hideLoader();
+      showError('Network error. Please check your connection and try again.');
+    }
+  }
+
+  // ─── STEP ANIMATION ───
+  function animateSteps() {
+    const steps = ['step1','step2','step3','step4'];
+    let i = 0;
+    steps.forEach(s => {
+      document.getElementById(s).className = 'step';
+    });
+    document.getElementById(steps[0]).classList.add('active');
+
+    const iv = setInterval(() => {
+      if (i < steps.length - 1) {
+        document.getElementById(steps[i]).classList.remove('active');
+        document.getElementById(steps[i]).classList.add('done');
+        i++;
+        document.getElementById(steps[i]).classList.add('active');
+      } else {
+        clearInterval(iv);
+      }
+    }, 1800);
+  }
+
+  // ─── RENDER RESULTS ───
+  function renderResults(data) {
+    const { total_questions, chapter_weightage, top_topics, questions } = data;
+
+    // Stats
+    const statsRow = document.getElementById('statsRow');
+    statsRow.innerHTML = `
+      <div class="stat-card">
+        <div class="stat-num cyan">${total_questions}</div>
+        <div class="stat-label">Questions Extracted</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num purple">${chapter_weightage.length}</div>
+        <div class="stat-label">Chapters Identified</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num coral">${top_topics.length > 0 ? top_topics[0].chapter.split(' ').slice(0,2).join(' ') : '—'}</div>
+        <div class="stat-label">Top Chapter</div>
+      </div>
+    `;
+
+    // Bar chart
+    const barChart = document.getElementById('barChart');
+    barChart.innerHTML = '';
+    const maxCount = Math.max(...chapter_weightage.map(c => c.count), 1);
+    chapter_weightage.forEach((row, i) => {
+      const div = document.createElement('div');
+      div.className = 'bar-row';
+      div.style.animationDelay = `${i * 80}ms`;
+      const pct = Math.round((row.count / maxCount) * 100);
+      div.innerHTML = `
+        <div class="bar-label" title="${row.chapter}">${row.chapter}</div>
+        <div class="bar-track">
+          <div class="bar-fill" style="width:0%" data-target="${pct}%"></div>
+        </div>
+        <div class="bar-pct">${row.percentage}%</div>
+      `;
+      barChart.appendChild(div);
+    });
+
+    // Animate bars after render
+    setTimeout(() => {
+      document.querySelectorAll('.bar-fill').forEach(bar => {
+        bar.style.width = bar.dataset.target;
+      });
+    }, 150);
+
+    // Questions
+    const qGrid = document.getElementById('qGrid');
+    qGrid.innerHTML = '';
+    questions.forEach((q, i) => {
+      const card = document.createElement('div');
+      card.className = 'q-card';
+      const opts = Array.isArray(q.options) ? q.options : [];
+      const optsHtml = opts.map(opt => {
+        const isCorrect = q.answer && opt.toLowerCase().includes(q.answer.toLowerCase().charAt(0));
+        return `<div class="q-opt ${isCorrect ? 'correct' : ''}">${escapeHtml(opt)}</div>`;
+      }).join('');
+
+      card.innerHTML = `
+        <div class="q-header">
+          <span class="q-num">Q${i + 1}</span>
+          <span class="q-chapter">${escapeHtml(q.chapter || 'Unknown')}</span>
+        </div>
+        <div class="q-text">${escapeHtml(q.question)}</div>
+        ${opts.length ? `
+          <div class="q-toggle">▾ Show options</div>
+          <div class="q-options">${optsHtml}</div>
+        ` : ''}
+      `;
+
+      card.addEventListener('click', () => {
+        card.classList.toggle('expanded');
+        const toggle = card.querySelector('.q-toggle');
+        if (toggle) toggle.textContent = card.classList.contains('expanded') ? '▴ Hide options' : '▾ Show options';
+      });
+
+      qGrid.appendChild(card);
+    });
+
+    document.getElementById('results').classList.add('visible');
+    document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function escapeHtml(str) {
+    const d = document.createElement('div');
+    d.appendChild(document.createTextNode(str || ''));
+    return d.innerHTML;
+  }
+
+  // ─── UI HELPERS ───
+  function showLoader() {
+    document.getElementById('loader').classList.add('visible');
+    document.getElementById('results').classList.remove('visible');
+    btnAnalyze.disabled = true;
+  }
+
+  function hideLoader() {
+    document.getElementById('loader').classList.remove('visible');
+    btnAnalyze.disabled = false;
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('errorBox');
+    el.textContent = '⚠ ' + msg;
+    el.classList.add('visible');
+  }
+
+  function hideError() {
+    document.getElementById('errorBox').classList.remove('visible');
+  }
+</script>
+</body>
+</html>
